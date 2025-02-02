@@ -306,7 +306,7 @@ static OptRes opt(u32* bc0) {
     u32* sbc = bc;
     bool ret = false;
     u8 cact = 0;
-    #define L64 ({ u64 r = bc[0] | ((u64)bc[1])<<32; bc+= 2; r; })
+    #define L64 do { u64 r = bc[0] | ((u64)bc[1])<<32; bc+= 2; r; } while(0)
     #define S(N,I) SRef N = stk[TSSIZE(stk)-1-(I)];
     switch (*bc++) { case FN1Ci: case FN1Oi: case FN2Ci: case FN2Oi: fatal("optimization: didn't expect already immediate FN__");
       case ADDU: case ADDI: cact = 0; TSADD(stk,SREF(b(L64), pos)); break;
@@ -432,7 +432,7 @@ static OptRes opt(u32* bc0) {
   while (true) {
     u32* sbc = bc;
     u32* ebc = nextBC(sbc);
-    #define L64 ({ u64 r = bc[0] | ((u64)bc[1])<<32; bc+= 2; r; })
+    #define L64 do { u64 r = bc[0] | ((u64)bc[1])<<32; bc+= 2; r; } while(0)
     u32 ctype = actions[tpos++];
     bool ret = false;
     u32 v = *bc++;
@@ -634,9 +634,9 @@ Nvm_res m_nvm(Body* body) {
     
     u32* off = origBC + bcpos;
     bool ret = false;
-    #define L64 ({ u64 r = bc[0] | ((u64)bc[1])<<32; bc+= 2; r; })
+    #define L64 do { u64 r = bc[0] | ((u64)bc[1])<<32; bc+= 2; r; } while(0)
     // #define LEA0(O,I,OFF) { MOV(O,I); ADDI(O,OFF); }
-    #define LEA0(O,I,OFF,Q) ({ i32 o=(OFF); if (Q||o) LEAi(O,I,o); o?O:I; })
+    #define LEA0(O,I,OFF,Q) do { i32 o=(OFF); if (Q||o) LEAi(O,I,o); o?O:I; } while(0)
     #define SPOSq(N) (maxi32(0, depth+(N)-1) * sizeof(B))
     #define SPOS(R,N,Q) LEA0(R, r_CS, SPOSq(N), Q) // load stack position N in register R; if Q==0, then might not write and instead return another register which will have the wanted value
     #define INV(N,D,F) SPOS(R_A##N, D, 1); CCALL(F)

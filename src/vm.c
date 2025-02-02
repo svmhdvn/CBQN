@@ -742,7 +742,7 @@ B evalBC(Body* b, Scope* sc, Block* bl) { // doesn't consume
     #define PEEK(X) lgStack[-(X)]
     #define GS_UPD { gStack = lgStack; }
   #endif
-  #define L64 ({ u64 r = bc[0] | ((u64)bc[1])<<32; bc+= 2; r; })
+  #define L64 do { u64 r = bc[0] | ((u64)bc[1])<<32; bc+= 2; r; } while(0)
   #if VM_POS
     #define POS_UPD envCurr->pos = ptr2u64(bc-1);
   #else

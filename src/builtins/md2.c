@@ -58,7 +58,7 @@ B catch_c2(Md2D* d, B w, B x) { return c2(d->f, w,x); }
 
 extern GLOBAL B rt_undo;
 void repeat_bounds(i64* bound, B g) { // doesn't consume
-  #define UPD_BOUNDS(B,I) ({ i64 i_ = (I); if (i_<bound[0]) bound[0] = i_; if (i_>bound[1]) bound[1] = i_; })
+  #define UPD_BOUNDS(B,I) do { i64 i_ = (I); if (i_<bound[0]) bound[0] = i_; if (i_>bound[1]) bound[1] = i_; } while(0)
   if (isArr(g)) {
     usz ia = IA(g);
     if (ia == 0) return;

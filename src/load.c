@@ -231,7 +231,7 @@ static NOINLINE void comps_push(B src, B state, B re) {
   comps_push(STR, STATE, RE);        \
   if (CATCH) { COMPS_POP; rethrow(); }
 
-#define COMPS_POP ({ ptr_dec(comps_curr); comps_curr = NULL; })
+#define COMPS_POP do { ptr_dec(comps_curr); comps_curr = NULL; } while(0)
 
 static NOINLINE Block* bqn_compc(B str, B state, B re) { // consumes str,state
   str = chr_squeeze(str);

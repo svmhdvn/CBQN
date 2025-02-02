@@ -1899,7 +1899,7 @@ B sys_c1(B t, B x) {
   CACHED(F)
   #undef F
   
-  #define CACHE_OBJ(NAME, COMP) ({ if (!NAME.u) NAME = (COMP); NAME; })
+  #define CACHE_OBJ(NAME, COMP) do { if (!NAME.u) NAME = (COMP); NAME; } while(0)
   #define REQ_PATH CACHE_OBJ(path, q_N(path0)? bi_N : path_abs(incG(path0)))
   
   M_HARR(r, IA(x))

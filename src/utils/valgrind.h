@@ -39,9 +39,9 @@ u64 rand_popc64(u64 x);
 
 void vg_printDefined_u64(char* name, u64 x);
 void vg_printDump_p(char* name, void* data, u64 len);
-#define vg_printDump_v(X) ({ AUTO x_ = (X); vg_printDump_p(#X, &x_, sizeof(x_)); x_; })
+#define vg_printDump_v(X) do { AUTO x_ = (X); vg_printDump_p(#X, &x_, sizeof(x_)); x_; } while(0)
 
 static void vg_def_p(void* data, u64 len) { VALGRIND_MAKE_MEM_DEFINED(data, len); }
 static void vg_undef_p(void* data, u64 len) { VALGRIND_MAKE_MEM_UNDEFINED(data, len); }
-#define vg_def_v(X)   ({ AUTO x_ = (X); vg_def_p  (&x_, sizeof(x_)); x_; })
-#define vg_undef_v(X) ({ AUTO x_ = (X); vg_undef_p(&x_, sizeof(x_)); x_; })
+#define vg_def_v(X)   do { AUTO x_ = (X); vg_def_p  (&x_, sizeof(x_)); x_; } while(0)
+#define vg_undef_v(X) do { AUTO x_ = (X); vg_undef_p(&x_, sizeof(x_)); x_; } while(0)

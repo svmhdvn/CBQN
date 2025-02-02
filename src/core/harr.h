@@ -24,8 +24,8 @@ NOINLINE void harr_pfree(B x, usz am); // am - item after last written
 
 
 #define M_HARR(N, IA) usz N##_len = (IA); HArr_p N##_v = m_harr_impl(N##_len); usz* N##_ia = &N##_v.c->ia; usz N##_i = 0;
-#define HARR_ADD(N, I, V) ({ B v_ = (V); usz i_ = (I); assert(N##_i==i_); N##_v.a[i_] = v_; *N##_ia = i_+1; N##_i++; v_; })
-#define HARR_ADDA(N, V)   ({ B v_ = (V); N##_v.a[N##_i] = v_; *N##_ia = ++N##_i; v_; })
+#define HARR_ADD(N, I, V) do { B v_ = (V); usz i_ = (I); assert(N##_i==i_); N##_v.a[i_] = v_; *N##_ia = i_+1; N##_i++; v_; } while(0)
+#define HARR_ADDA(N, V)   do { B v_ = (V); N##_v.a[N##_i] = v_; *N##_ia = ++N##_i; v_; } while(0)
 #define HARR_O(N) N##_v
 #define HARR_I(N) N##_i
 SHOULD_INLINE HArr_p m_harr_impl(usz ia) {
@@ -38,11 +38,11 @@ SHOULD_INLINE HArr_p m_harr_impl(usz ia) {
   return rp;
 }
 
-#define HARR_FV(N) ({ assert(N##_v.c->ia == N##_len); harr_fv_impl(N##_v); })
-#define HARR_FC(N, X) ({ assert(N##_v.c->ia == N##_len); harr_fc_impl(N##_v, X); })
-#define HARR_FCD(N, X) ({ assert(N##_v.c->ia == N##_len); harr_fcd_impl(N##_v, X); })
-#define HARR_FA(N, R) ({ assert(N##_v.c->ia == N##_len); harr_fa_impl(N##_v, R); })
-#define HARR_FP(N, R) ({ assert(N##_v.c->ia == N##_len); harr_fp_impl(N##_v, R); })
+#define HARR_FV(N) do { assert(N##_v.c->ia == N##_len); harr_fv_impl(N##_v); } while(0)
+#define HARR_FC(N, X) do { assert(N##_v.c->ia == N##_len); harr_fc_impl(N##_v, X); } while(0)
+#define HARR_FCD(N, X) do { assert(N##_v.c->ia == N##_len); harr_fcd_impl(N##_v, X); } while(0)
+#define HARR_FA(N, R) do { assert(N##_v.c->ia == N##_len); harr_fa_impl(N##_v, R); } while(0)
+#define HARR_FP(N, R) do { assert(N##_v.c->ia == N##_len); harr_fp_impl(N##_v, R); } while(0)
 #define HARR_ABANDON(N) harr_abandon_impl(N##_v.c)
 SHOULD_INLINE B harr_fv_impl(HArr_p p) { VTY(p.b, t_harrPartial);
   p.c->type = t_harr;
@@ -78,9 +78,9 @@ void harr_abandon_impl(HArr* p);
 
 // unsafe-ish things - don't allocate/GC anything before having written to all items
 
-#define m_harr0v(N) ({ usz n_ = (N); HArr_p r_ = m_harrUv(n_);                for(usz i=0;i<n_;i++)r_.a[i]=m_f64(0); NOGC_E; r_; })
-#define m_harr0c(X) ({ B x_ = (X); usz n_ = IA(x_); HArr_p r_ = m_harrUc(x_); for(usz i=0;i<n_;i++)r_.a[i]=m_f64(0); NOGC_E; r_; })
-#define m_harr0p(N) ({ usz n_ = (N); HArr_p r_ = m_harrUp(n_);                for(usz i=0;i<n_;i++)r_.a[i]=m_f64(0); NOGC_E; r_; })
+#define m_harr0v(N) do { usz n_ = (N); HArr_p r_ = m_harrUv(n_);                for(usz i=0;i<n_;i++)r_.a[i]=m_f64(0); NOGC_E; r_; } while(0)
+#define m_harr0c(X) do { B x_ = (X); usz n_ = IA(x_); HArr_p r_ = m_harrUc(x_); for(usz i=0;i<n_;i++)r_.a[i]=m_f64(0); NOGC_E; r_; } while(0)
+#define m_harr0p(N) do { usz n_ = (N); HArr_p r_ = m_harrUp(n_);                for(usz i=0;i<n_;i++)r_.a[i]=m_f64(0); NOGC_E; r_; } while(0)
 SHOULD_INLINE HArr_p m_harrUv(usz ia) {
   CHECK_IA(ia, sizeof(B));
   HArr* r = m_arr(fsizeof(HArr,a,B,ia), t_harr, ia); if(ia) NOGC_S;
@@ -115,7 +115,7 @@ static B* hslice_ptr(B x) { return hslicev_ptr(a(x)); }
 
 Arr* cpyHArr(B x); // consumes
 static HArr* toHArr(B x) { return TY(x)==t_harr? c(HArr,x) : (HArr*) cpyHArr(x); }
-#define TO_BPTR_RUN(X, F) ({ B* bp_ = arr_bptr(X); if (bp_==NULL) { HArr* nha_ = (HArr*)cpyHArr(X); X=taga(nha_); bp_=nha_->a; F; }; bp_; })
+#define TO_BPTR_RUN(X, F) do { B* bp_ = arr_bptr(X); if (bp_==NULL) { HArr* nha_ = (HArr*)cpyHArr(X); X=taga(nha_); bp_=nha_->a; F; }; bp_; } while(0)
 #define TO_BPTR(X) TO_BPTR_RUN(X, )
 
 B m_caB(usz ia, B* a);

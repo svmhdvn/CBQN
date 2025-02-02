@@ -63,7 +63,7 @@ B select_rows_direct(B x, ux csz, ux cam, void* inds, ux indn, u8 ie);
   incByG(X, (i64)X##_sn + ((i64)DX-1));
 
 #define SLICE(X, S) taga(arr_shSetUO(X##_slc(X, S, X##_csz), X##_cr, X##_csh))
-#define SLICEI(X) ({ B r = SLICE(X, X##p); X##p+= X##_csz; r; })
+#define SLICEI(X) do { B r = SLICE(X, X##p); X##p+= X##_csz; r; } while(0)
 
 
 

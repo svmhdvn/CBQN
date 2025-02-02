@@ -112,7 +112,7 @@ typedef size_t ux;
 #define LIKELY(X) __builtin_expect((X)!=0,1)
 #define RARE(X) __builtin_expect((X)!=0,0)
 #define ARBITRARY(T) ((T)0) // to be potentially replaced with something better if such arrives
-#define GUARANTEED(V) ({ AUTO v_ = (V); __builtin_constant_p(v_) && v_; })
+#define GUARANTEED(V) do { AUTO v_ = (V); __builtin_constant_p(v_) && v_; } while(0)
 #define fsizeof(T,F,E,N) (offsetof(T, F) + sizeof(E)*(N)) // type, flexible array member name, flexible array member type, item amount
 #define RFLD(X,T,F) ((T*)((char*)(X) - offsetof(T,F))) // value, result type, field name; reverse-read field: `T* x = …; E v = x->f; x == RFLD(v, T, f)`
 #define N64x "%"SCNx64
@@ -197,7 +197,7 @@ static const u16 VAL_TAG = 0b1111111111110   ; // FFF. 1111111111110............
 #define tagu64(V, T) b((u64)(V) | ftag(T))
 #define TOPTR(T,X) ((T*)(uintptr_t)(X))
 #define c(T,X) TOPTR(T, (X).u&0xFFFFFFFFFFFFull)
-#define tag(V, T) ({ void* tagv_ = (V); b(ptr2u64(tagv_) | ftag(T)); })
+#define tag(V, T) do { void* tagv_ = (V); b(ptr2u64(tagv_) | ftag(T)); } while(0)
 #define taga(V) tag(V,ARR_TAG)
 
 typedef union B {
@@ -591,12 +591,12 @@ typedef B (*D2C2)(Md2D*, B, B);
 #define TI(X,V)  (ti_##V[ TY(X)])
 
 #define SGetU(X) Arr* X##_arrU = a(X); AS2B X##_getU = TIv(X##_arrU,getU);
-#define IGetU(X,N) ({ Arr* x_ = a(X); TIv(x_,getU)(x_,N); })
+#define IGetU(X,N) do { Arr* x_ = a(X); TIv(x_,getU)(x_,N); } while(0)
 #define GetU(X,N) X##_getU(X##_arrU,N)
 #define SGet(X) Arr* X##_arr = a(X); AS2B X##_get = TIv(X##_arr,get);
-#define IGet(X,N) ({ Arr* x_ = a(X); TIv(x_,get)(x_,N); })
+#define IGet(X,N) do { Arr* x_ = a(X); TIv(x_,get)(x_,N); } while(0)
 #define Get(X,N) X##_get(X##_arr,N)
-#define TO_GET(X,N) ({ B x_2 = (X); B r = IGet(x_2,N); decG(x_2); r; })
+#define TO_GET(X,N) do { B x_2 = (X); B r = IGet(x_2,N); decG(x_2); r; } while(0)
 
 
 enum Flags {
@@ -606,10 +606,10 @@ enum Flags {
 };
 #define FL_GET(X) (v(X)->flags)
 #define FLV_GET(X) ((X)->flags)
-#define FL_SET(X,F)  ({ B    x_ = (X); v(x_)->flags|= (F); x_; })
-#define FLV_SET(X,F) ({ AUTO x_ = (X);    x_->flags|= (F); x_; })
-#define FL_KEEP(X,F)  ({ B    x_ = (X); v(x_)->flags&= (F); x_; })
-#define FLV_KEEP(X,F) ({ AUTO x_ = (X);    x_->flags&= (F); x_; })
+#define FL_SET(X,F)  do { B    x_ = (X); v(x_)->flags|= (F); x_; } while(0)
+#define FLV_SET(X,F) do { AUTO x_ = (X);    x_->flags|= (F); x_; } while(0)
+#define FL_KEEP(X,F)  do { B    x_ = (X); v(x_)->flags&= (F); x_; } while(0)
+#define FLV_KEEP(X,F) do { AUTO x_ = (X);    x_->flags&= (F); x_; } while(0)
 #define FL_HAS(X,F) ((v(X)->flags&(F)) != 0)
 #define FLV_HAS(X,F) (((X)->flags&(F)) != 0)
 #define FL_HAS_ALL(X,F) ((v(X)->flags&(F)) == (F))
@@ -617,7 +617,7 @@ enum Flags {
 
 // refcount stuff
 static bool reusable(B x) { return v(x)->refc==1; }
-#define REUSE(X) ({ B x_ = (X); v(x_)->flags = 0; x_; })
+#define REUSE(X) do { B x_ = (X); v(x_)->flags = 0; x_; } while(0)
 #define DEF_FREE(TY) static inline void TY##_freeO(Value* x); static void TY##_freeF(Value* x) { TY##_freeO(x); mm_free(x); } static inline void TY##_freeO(Value* x)
 FORCE_INLINE void value_free(Value* x) { TIv(x,freeF)(x); }
 void value_freeF(Value* x);
@@ -628,7 +628,7 @@ static void dec(B x) {
 }
 static inline void ptr_dec(void* x) { if(!--VALIDATEP((Value*)x)->refc) value_free(x); }
 static inline void ptr_decR(void* x) { if(!--VALIDATEP((Value*)x)->refc) value_freeF(x); }
-#define tptr_dec(X, F) ({ Value* x_ = (Value*)(X); if (!--VALIDATEP(x_)->refc) F(x_); })
+#define tptr_dec(X, F) do { Value* x_ = (Value*)(X); if (!--VALIDATEP(x_)->refc) F(x_); } while(0)
 static void decR(B x) {
   if (!isVal(VALIDATE(x))) return;
   Value* vx = v(x);
@@ -664,8 +664,8 @@ static inline B incBy(B x, i64 am) { // you most likely don't want am to be nega
   return x;
 }
 static inline B incByG(B x, i64 am) { v(x)->refc+= am; return x; }
-#define ptr_inc(X) ({ AUTO x_ = (X); VALIDATEP((Value*)x_)->refc++; x_; })
-#define ptr_incBy(X, AM) ({ AUTO x_ = (X); VALIDATEP((Value*)x_)->refc+= (i64)(AM); x_; })
+#define ptr_inc(X) do { AUTO x_ = (X); VALIDATEP((Value*)x_)->refc++; x_; } while(0)
+#define ptr_incBy(X, AM) do { AUTO x_ = (X); VALIDATEP((Value*)x_)->refc+= (i64)(AM); x_; } while(0)
 
 
 
@@ -717,8 +717,8 @@ static B c2iWX(B f, B w, B x) { // c2 with inc(w), inc(x)
 
 static B c1G(B f,      B x) { assert(isFun(f)); return c(Fun,f)->c1(f,    x); }
 static B c2G(B f, B w, B x) { assert(isFun(f)); return c(Fun,f)->c2(f, w, x); }
-#define c1rt(N,    X) ({           B x_=(X); SLOW1("!rt_" #N,   x_); c1G(rt_##N,     x_); })
-#define c2rt(N, W, X) ({ B w_=(W); B x_=(X); SLOW2("!rt_" #N,w_,x_); c2G(rt_##N, w_, x_); })
+#define c1rt(N,    X) do {           B x_=(X); SLOW1("!rt_" #N,   x_); c1G(rt_##N,     x_); } while(0)
+#define c2rt(N, W, X) do { B w_=(W); B x_=(X); SLOW2("!rt_" #N,w_,x_); c2G(rt_##N, w_, x_); } while(0)
 
 
 struct Md1 {

@@ -97,11 +97,11 @@ static void mut_copy(Mut* m, usz ms, B x, usz xs, usz l) { assert(isArr(x)); m->
 // after that, the only valid operation on the Mut will be MUT_APPEND
 // using this append system will no longer prevent allocations from being done during the lifetime of the Mut
 #define MUT_APPEND_INIT(N) ux N##_ci = 0; NOGC_E;
-#define MUT_APPEND(N, X, XS, L) ({ ux l_ = (L); NOGC_CHECK("MUT_APPEND during noalloc"); \
+#define MUT_APPEND(N, X, XS, L) do { ux l_ = (L); NOGC_CHECK("MUT_APPEND during noalloc"); \
   mut_copy(N, N##_ci, X, XS, l_);  \
   N##_ci+= l_;                     \
   if (PTY(N->val) == t_harr) { NOGC_E; N->val->ia = N##_ci; } \
-})
+} while(0)
 
 #define MUTG_INIT(N) MutFns N##_mutfns = *N->fns; void* N##_mutarr = N->a
 // these methods function as the non-G-postfixed ones, except that
@@ -278,6 +278,6 @@ ApdFn apd_tot_init, apd_sh_init, apd_reshape;
 #define M_APD_SH_N(M, RR, RSH, N) M_APD_BASE(M) M.apd = N==1? apd_reshape : apd_sh_init; M.rsh0 = (RSH); M.rr0 = (RR); // same, with known number of appends
 #define M_APD_SH1(M, RIA) usz M##_sh0 = (RIA); M_APD_SH(M, 1, &M##_sh0);
 #define APD(M, A) M.apd(&M, A) // doesn't consume A
-#define APDD(M, A) ({ B av_ = (A); M.apd(&M, av_); dec(av_); }) // consumes A
+#define APDD(M, A) do { B av_ = (A); M.apd(&M, av_); dec(av_); } while(0) // consumes A
 #define APD_SH_GET(M, TY) (M.end(&M, TY))
 #define APD_TOT_GET(M) (M.obj)

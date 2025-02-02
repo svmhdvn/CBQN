@@ -205,10 +205,10 @@ static NOINLINE i64 readInt(char** p) {
     not_bad_prefix:;
     
     ReplxxColor* theme = theme_replxx;
-    #define SKIP(V) ({ u32 c; while(true) { c=chars[i]; if (c==0 || !(V)) break; i++; } }) // skips to first character that doesn't match V, or to the final null byte
-    #define FILL(T) ({ assert(i<=size); fill_color(colors, i0, i, theme[T]); })
-    #define SET1(T) ({ assert(i<=size); colors[i0] = theme[T]; })
-    #define SKIP1 ({ if (i+1<=size) i++; })
+    #define SKIP(V) do { u32 c; while(true) { c=chars[i]; if (c==0 || !(V)) break; i++; } } while(0) // skips to first character that doesn't match V, or to the final null byte
+    #define FILL(T) do { assert(i<=size); fill_color(colors, i0, i, theme[T]); } while(0)
+    #define SET1(T) do { assert(i<=size); colors[i0] = theme[T]; } while(0)
+    #define SKIP1 do { if (i+1<=size) i++; } while(0)
     int i = 0;
     while (i < size) {
       int i0 = i;

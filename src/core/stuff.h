@@ -6,8 +6,8 @@
 static void storeu_u64(void* p, u64 v) { memcpy(p, &v, 8); }  static u64 loadu_u64(void* p) { u64 v; memcpy(&v, p, 8); return v; }
 static void storeu_u32(void* p, u32 v) { memcpy(p, &v, 4); }  static u32 loadu_u32(void* p) { u32 v; memcpy(&v, p, 4); return v; }
 static void storeu_u16(void* p, u16 v) { memcpy(p, &v, 2); }  static u16 loadu_u16(void* p) { u16 v; memcpy(&v, p, 2); return v; }
-#define ptr_roundUp(P, N) ({ AUTO p_ = (P); u64 n_ = (N); TOPTR(typeof(*p_), (ptr2u64(p_)+n_-1) & ~(n_-1)); })
-#define ptr_roundUpToEl(P) ({ AUTO p2_ = (P); ptr_roundUp(p2_, _Alignof(typeof(*p2_))); })
+#define ptr_roundUp(P, N) do { AUTO p_ = (P); u64 n_ = (N); TOPTR(typeof(*p_), (ptr2u64(p_)+n_-1) & ~(n_-1)); } while(0)
+#define ptr_roundUpToEl(P) do { AUTO p2_ = (P); ptr_roundUp(p2_, _Alignof(typeof(*p2_))); } while(0)
 
 void print_allocStats(void);
 void vm_pstLive(void);
@@ -40,22 +40,22 @@ extern INIT_GLOBAL M_FillF fillFns[el_MAX];
 #if SINGELI_SIMD
   typedef void (*copy_fn)(void*, void*, u64, void*);
   extern INIT_GLOBAL copy_fn tcopy_all[];
-  #define COPY_TO_FROM(RP, RE, XP, XE, LEN) ({ \
+  #define COPY_TO_FROM(RP, RE, XP, XE, LEN) do { \
     u8 re_ = (RE); \
     u8 xe_ = (XE); \
     assert(re_ < el_B && xe_ < el_B); \
     void* xp_ = (XP); \
     tcopy_all[re_*8+xe_](RP, xp_, LEN, GUARANTEED(xe_!=el_bit)? ARBITRARY(void*) : (u8*)xp_ - offsetof(TyArr,a)); \
-  })
+  } while(0)
 #else
   typedef void (*basic_copy_fn)(void*, void*, u64);
   extern INIT_GLOBAL basic_copy_fn basic_copy_all[];
-  #define COPY_TO_FROM(RP, RE, XP, XE, LEN) ({ \
+  #define COPY_TO_FROM(RP, RE, XP, XE, LEN) do { \
     u8 re_ = (RE); \
     u8 xe_ = (XE); \
     assert(re_ < el_B && xe_ < el_B); \
     basic_copy_all[re_*8+xe_](RP, XP, LEN); \
-  })
+  } while(0)
 #endif
 #define COPY_TO(WHERE, ELT, MS, X, XS, LEN) copyFns[ELT](WHERE, MS, X, XS, LEN)
 #define FILL_TO(WHERE, ELT, MS, X, LEN) fillFns[ELT](WHERE, MS, X, LEN)
@@ -64,7 +64,7 @@ extern INIT_GLOBAL M_FillF fillFns[el_MAX];
 #define TYARR_SZ2(T,IA) TYARR_SZ(T,IA)
 #define TYARR_SZW(W,IA) (offsetof(TyArr, a) + (W)*(IA))
 
-#define WRAP(X,IA,MSG) ({ i64 wV=(i64)(X); u64 iaW=(IA); if(RARE((u64)wV >= iaW)) { if(wV<0) wV+= iaW; if((u64)wV >= iaW) {MSG;} }; (usz)wV; })
+#define WRAP(X,IA,MSG) do { i64 wV=(i64)(X); u64 iaW=(IA); if(RARE((u64)wV >= iaW)) { if(wV<0) wV+= iaW; if((u64)wV >= iaW) {MSG;} }; (usz)wV; } while(0)
 
 static void tyarrv_freeP(Arr* x) { assert(PRNK(x)<=1 && IS_DIRECT_TYARR(PTY(x))); mm_free((Value*)x); }
 static void tyarrv_free(B x) { tyarrv_freeP(a(x)); }
@@ -213,8 +213,8 @@ B m_vec2(B a, B b); // incomplete fills
 
 // random stuff
 
-#define addOn(V,X) ({ AUTO v_ = &(V); __builtin_add_overflow(*v_, X, v_); })
-#define mulOn(V,X) ({ AUTO v_ = &(V); __builtin_mul_overflow(*v_, X, v_); })
+#define addOn(V,X) do { AUTO v_ = &(V); __builtin_add_overflow(*v_, X, v_); } while(0)
+#define mulOn(V,X) do { AUTO v_ = &(V); __builtin_mul_overflow(*v_, X, v_); } while(0)
 
 static usz uszMul(usz a, usz b) {
   if (mulOn(a, b)) thrM("Size too large");
@@ -292,13 +292,13 @@ B def_fn_ix(B t, B w, B x);  B def_m1_ix(Md1D* d, B w, B x);  B def_m2_ix(Md2D* 
 void noop_visit(Value* x);
 #if HEAP_VERIFY
   void arr_visit(Value* x);
-  #define VISIT_SHAPE(X) ({ if (PRNK(X)>1) mm_visitP(shObjP(X)); })
+  #define VISIT_SHAPE(X) do { if (PRNK(X)>1) mm_visitP(shObjP(X)); } while(0)
 #else
   #define arr_visit noop_visit
   #define VISIT_SHAPE(X)
 #endif
 
-#define ICMP(W,X) ({ AUTO wt = (W); AUTO xt = (X); (wt>xt?1:0)-(wt<xt?1:0); })
+#define ICMP(W,X) do { AUTO wt = (W); AUTO xt = (X); (wt>xt?1:0)-(wt<xt?1:0); } while(0)
 SHOULD_INLINE i32 compareFloat(f64 w, f64 x) {
   if (RARE(w!=w || x!=x)) return (w!=w) - (x!=x);
   #if __x86_64__

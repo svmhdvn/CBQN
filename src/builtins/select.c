@@ -75,7 +75,7 @@
   #define SINGELI_FILE select
   #include "../utils/includeSingeli.h"
   typedef bool (*SimdSelectFn)(void* w0, void* x0, void* r0, u64 wl, u64 xl);
-  #define SIMD_SELECT(WE, XL) ({ AUTO we_=(WE); AUTO xl_=(XL); assert(we_>=el_i8 && we_<=el_i32 && xl_>=3 && xl_<=6); si_select_tab[4*(we_-el_i8)+xl_-3]; })
+  #define SIMD_SELECT(WE, XL) do { AUTO we_=(WE); AUTO xl_=(XL); assert(we_>=el_i8 && we_<=el_i32 && xl_>=3 && xl_<=6); si_select_tab[4*(we_-el_i8)+xl_-3]; } while(0)
 #endif
 
 typedef void (*CFn)(void* r, ux rs, void* x, ux xs, ux data);

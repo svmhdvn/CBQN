@@ -1092,7 +1092,7 @@ B ffiload_c2(B t, B w, B x) {
   vfyStr(name, "FFI", "Type");
   
   u64 staticAlloc = ffiTmpAlign(argn * sizeof(void*)); // initial alloc is the argument pointer list
-  #define STATIC_ALLOC(O, SZ) ({ (O).staticOffset = staticAlloc; staticAlloc+= ffiTmpAlign(SZ); })
+  #define STATIC_ALLOC(O, SZ) do { (O).staticOffset = staticAlloc; staticAlloc+= ffiTmpAlign(SZ); } while(0)
   
   DecoratedType tRes = ffi_parseDecoratedType(GetU(x,0), true);
   BQNFFIEnt eRes = tRes.ent;

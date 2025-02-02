@@ -108,10 +108,10 @@ static inline void asm_w1(u8* data, i8 v) { *data = v; }
 static inline void asm_w2(u8* data, i16 v) { memcpy(data, (i16[]){v}, 2); }
 static inline void asm_w4(u8* data, i32 v) { memcpy(data, (i32[]){v}, 4); }
 static inline void asm_w8(u8* data, i64 v) { memcpy(data, (i64[]){v}, 8); }
-#define ASM1(X) ({ asm_w1(ic, X); ic+= 1; })
-#define ASM2(X) ({ asm_w2(ic, X); ic+= 2; })
-#define ASM4(X) ({ asm_w4(ic, X); ic+= 4; })
-#define ASM8(X) ({ asm_w8(ic, X); ic+= 8; })
+#define ASM1(X) do { asm_w1(ic, X); ic+= 1; } while(0)
+#define ASM2(X) do { asm_w2(ic, X); ic+= 2; } while(0)
+#define ASM4(X) do { asm_w4(ic, X); ic+= 4; } while(0)
+#define ASM8(X) do { asm_w8(ic, X); ic+= 8; } while(0)
 static inline i32  asm_r4(u8* data) { i32 v; memcpy(&v, data, 4); return v; }
 
 static inline void asm_r() {
@@ -139,8 +139,8 @@ static NOINLINE void asm_write(u8* P, u64 SZ) {
 
 
 #define REX0(O,I) (((O)>7)+(((I)>7)<<2))
-#define REX1(O,I) ({ if((O)>3 || (I)>3) ASM1(0x40+REX0(O,I)); })
-#define REX2(O,I) ({ ASM1(0x66); REX4(O,I); })
+#define REX1(O,I) do { if((O)>3 || (I)>3) ASM1(0x40+REX0(O,I)); } while(0)
+#define REX2(O,I) do { ASM1(0x66); REX4(O,I); } while(0)
 #define REX4(O,I) {u8 t=REX0(O,I); if(t) ASM1(0x40+t); }
 #define REX8(O,I) ASM1(0x48 + REX0(O,I))
 #define CHK4(O) (((O)&7)==4)

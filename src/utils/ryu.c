@@ -273,7 +273,7 @@ static inline floating_decimal_64 d2d(const uint64_t mantissa, const uint32_t ex
 
 
 #define W2D(RES, NUM) memcpy((RES), DIGIT_TABLE + (NUM)*2, 2)
-#define W4D(RES, NUM) ({ char* r4_ = (RES); AUTO n4_ = (NUM); W2D(r4_, n4_/100  ); W2D(r4_+2, n4_%100  ); })
+#define W4D(RES, NUM) do { char* r4_ = (RES); AUTO n4_ = (NUM); W2D(r4_, n4_/100  ); W2D(r4_+2, n4_%100  ); } while(0)
 
 #ifdef __clang__ // https://bugs.llvm.org/show_bug.cgi?id=38217
 #define mod1e4(X) ((X) - 10000 * ((X)/10000))

@@ -31,7 +31,7 @@ extern INIT_GLOBAL EqFn eqFns[];
 extern u8 const eqFnData[];
 #define EQFN_INDEX(W_ELT, X_ELT) ((W_ELT)*8 + (X_ELT))
 typedef struct { EqFn fn; u8 data; } EqFnObj;
-#define EQFN_GET(W_ELT, X_ELT) ({ u8 eqfn_i_ = EQFN_INDEX(W_ELT, X_ELT); (EqFnObj){.fn=eqFns[eqfn_i_], .data=eqFnData[eqfn_i_]}; })
+#define EQFN_GET(W_ELT, X_ELT) do { u8 eqfn_i_ = EQFN_INDEX(W_ELT, X_ELT); (EqFnObj){.fn=eqFns[eqfn_i_], .data=eqFnData[eqfn_i_]}; } while(0)
 #define EQFN_CALL(FN, W, X, L) (FN).fn(W, X, L, (FN).data) // check if L elements starting at a and b match; assumes L≥1
 
 typedef bool (*RangeFn)(void* xp, i64* res, u64 len); // writes min,max in res, assumes len≥1; returns 0 and leaves res undefined if either any (floor(x)≠x or abs>2⋆53), or (x≠(i64)x)
